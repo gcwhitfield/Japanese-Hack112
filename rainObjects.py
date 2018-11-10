@@ -29,4 +29,4 @@ class RainingObject(object):
         
 class KanjiRain(RainingObject):
     def __init__(self, word, reading, meaning, position, size, fallSpeed):
-        super().__init__(word, reading, meaning, position, size, fallSpeed)
+        super().__init__(word, reading, meaning, position, size, fallSpeed) 

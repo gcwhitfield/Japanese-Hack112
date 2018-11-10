@@ -5,15 +5,22 @@
 # Updated Animation Starter Code
 
 from tkinter import *
-
 import readJapaneseWordFiles
 import rainObjects
 import random
 
+# ---------------------------------------------------- #
+# --------------- global variables ------------------- #
+# ---------------------------------------------------- #
+
 # this is a dictionary of the words that we are currently using for the level
 wordBank = readJapaneseWordFiles.formatJapanese(
-    readJapaneseWordFiles.readFile('jlptn5words.txt')
+    readJapaneseWordFiles.readFile('textFiles/jlptn5words.txt')
 ) 
+
+# ---------------------------------------- #
+# -------- Kanji Rain Game Logic --------- #
+# ---------------------------------------- #
 
 def addNewRainingWord(data):
     newWord = data.wordBank[random.randint(0, len(data.wordBank))] # get a random word
@@ -25,7 +32,7 @@ def addNewRainingWord(data):
             random.randint(data.wordMargin, data.width - data.wordMargin),
             0
         ),
-        size = 30,
+        size = 70,
         fallSpeed = 3
     ))
 
@@ -41,7 +48,7 @@ def runEveryFrame(data): # run this every animation frame
     moveKanjis(data)
     kanjiCollisions(data)
 
-def runEverySecond(data):# run this every second
+def runEveryWordAddInterval(data):# run this every second
     addNewRainingWord(data)
 
 def moveKanjis(data):
@@ -56,8 +63,13 @@ def drawKanjis(canvas, data):
             kanji.posy,
             text = kanji.word,
             font = 'Arial ' + str(kanji.size) + ' bold',
-            fill = 'blue'
+            fill = 'black'
         )
+
+def drawBackground(canvas, data):
+    canvas.create_image(data.width//2, data.height//2,
+                        image = data.backGroundImage)
+
 # --------------------------------------------------------- #
 # -------------- Animation Functions ---------------------- #
 # --------------------------------------------------------- #
@@ -70,9 +82,11 @@ def init(data):
     data.rainingKanjis = set()
     data.wordBank = wordBank
     data.currentInput = ''
-    data.wordMargin = 50 # margin on the right and left sides of screen
+    data.wordMargin = 100 # margin on the right and left sides of screen
 
-    data.wordFreqency = 2 # number of seconds between each new word generated
+    data.wordFreqency = 30 # number of seconds between each new word generated
+    
+    data.backGroundImage = PhotoImage(file = 'images/kanjibackground.gif')
 
 def mousePressed(event, data):
     # use event.x and event.y
@@ -85,11 +99,13 @@ def keyPressed(event, data):
 def timerFired(data):
     data.currGameTime += 1
     runEveryFrame(data)
-    if data.currGameTime % 10 == 0:
-        runEverySecond(data)
+    if data.currGameTime % data.wordFreqency == 0:
+        runEveryWordAddInterval(data)
 
 def redrawAll(canvas, data):
+    drawBackground(canvas, data)
     drawKanjis(canvas, data)
+    
 
 ####################################
 # use the run function as-is
@@ -139,4 +155,4 @@ def run(width=300, height=300):
     root.mainloop()  # blocks until window is closed
     print("bye!")
 
-run(800, 800)
+run(1000, 1000)

@@ -32,7 +32,3 @@ def formatJapanese(fileString): # take the file and format it into a really nice
             lineList[0] = lineList[1]
         print(lineList)
     return result
-
-formatJapanese(
-    readFile('jlptn5words.txt')
-)
