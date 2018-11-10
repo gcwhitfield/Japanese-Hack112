@@ -6,14 +6,73 @@
 
 from tkinter import *
 
-####################################
-# customize these functions
-####################################
+import readJapaneseWordFiles
+import rainObjects
+import random
+
+# this is a dictionary of the words that we are currently using for the level
+wordBank = readJapaneseWordFiles.formatJapanese(
+    readJapaneseWordFiles.readFile('jlptn5words.txt')
+) 
+
+def addNewRainingWord(data):
+    newWord = data.wordBank[random.randint(0, len(data.wordBank))] # get a random word
+    data.rainingKanjis.add(rainObjects.KanjiRain(
+        word = newWord[0],
+        reading = newWord[1],
+        meaning = newWord[2],
+        position = (
+            random.randint(data.wordMargin, data.width - data.wordMargin),
+            0
+        ),
+        size = 30,
+        fallSpeed = 3
+    ))
+
+def kanjiCollisions(data): # remove the kanji when it hits the bottom of screen
+    kanjisToRemove = set()
+    for kanji in data.rainingKanjis:
+        if kanji.isCollidingWithBottom(data):
+            kanjisToRemove.add(kanji)
+    for kanji in kanjisToRemove:
+        data.rainingKanjis.remove(kanji)
+
+def runEveryFrame(data): # run this every animation frame
+    moveKanjis(data)
+    kanjiCollisions(data)
+
+def runEverySecond(data):# run this every second
+    addNewRainingWord(data)
+
+def moveKanjis(data):
+    for kanji in data.rainingKanjis:
+        kanji.moveDown()
+
+def drawKanjis(canvas, data):
+    for kanji in data.rainingKanjis:
+        assert(type(kanji) == rainObjects.KanjiRain)
+        canvas.create_text(
+            kanji.posx,
+            kanji.posy,
+            text = kanji.word,
+            font = 'Arial ' + str(kanji.size) + ' bold',
+            fill = 'blue'
+        )
+# --------------------------------------------------------- #
+# -------------- Animation Functions ---------------------- #
+# --------------------------------------------------------- #
 
 def init(data):
+    data.currGameTime = 0
+    data.remainingGameTime = 3600 # game time limit
+
     data.score = 0
-    data.rainingKanjis = dict()
+    data.rainingKanjis = set()
+    data.wordBank = wordBank
     data.currentInput = ''
+    data.wordMargin = 50 # margin on the right and left sides of screen
+
+    data.wordFreqency = 2 # number of seconds between each new word generated
 
 def mousePressed(event, data):
     # use event.x and event.y
@@ -24,11 +83,13 @@ def keyPressed(event, data):
     pass
 
 def timerFired(data):
-    pass
+    data.currGameTime += 1
+    runEveryFrame(data)
+    if data.currGameTime % 10 == 0:
+        runEverySecond(data)
 
 def redrawAll(canvas, data):
-    # draw in canvas
-    pass
+    drawKanjis(canvas, data)
 
 ####################################
 # use the run function as-is
@@ -60,7 +121,7 @@ def run(width=300, height=300):
     data = Struct()
     data.width = width
     data.height = height
-    data.timerDelay = 100 # milliseconds
+    data.timerDelay = 10 # milliseconds
     root = Tk()
     root.resizable(width=False, height=False) # prevents resizing window
     init(data)
@@ -78,4 +139,4 @@ def run(width=300, height=300):
     root.mainloop()  # blocks until window is closed
     print("bye!")
 
-run(400, 200)
+run(800, 800)
