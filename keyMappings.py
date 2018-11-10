@@ -4,7 +4,7 @@
 
 class KeyMappings:
     
-    hiraganaToKatakana = {
+    hiraganaToKatakanaDict = {
         # -------- regular characters --------- # 
         'あ': 'ア',
         'い': 'イ',
@@ -291,5 +291,23 @@ class KeyMappings:
     }
 
     @staticmethod
-    def romajiToHiragana(romaji):
-        pass
+    def romajiToHiragana(romaji): # give the hiragana of the romaji
+        if romaji in KeyMappings.romajiDictionary:
+            return KeyMappings.romajiDictionary[romaji]
+        else:
+            return None
+
+    @staticmethod
+    def hiraganaToKatakana(hirag): # convert hiragana to katana
+        if hirag in KeyMappings.hiraganaToKatakanaDict:
+            return KeyMappings.hiraganaToKatakanaDict[hirag]
+        else:
+            return None
+
+    @staticmethod
+    def katakanaToHiragana(kata):
+        for element in KeyMappings.hiraganaToKatakanaDict:
+            if KeyMappings.hiraganaToKatakanaDict[element] == kata:
+                return element
+        return None
+        
